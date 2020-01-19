@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+
+  backend_container:
+    build: ./backend
+    env_file: .env
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_APPID=${APPID}
+    ports:
+      - 9001:9001
+    volumes: 
+      - ./backend/src:/backend/src
+
+  frontend_container:
+    build: ./frontend
+    ports:
+      - 8080:8000
+    environment:
+      - NODE_ENV=development
+    volumes: 
+      - ./frontend/src:/frontend/src
+    depends_on:
+      - backend_container

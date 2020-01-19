@@ -75,3 +75,58 @@ Here are some things in different categories that you can do to make the app bet
 * Remember to update the README
 
 * Use descriptive names and add comments in the code when necessary
+
+Backend requires 9001 port. Remember to open port in Vagrantfile.
+Frontend requires 8000 and 8080 port.
+
+.env file is located in /weatherapp (same directory with docker-compose file) and it contains apikey for openweathermap.org.
+.env example:
+============
+APPID=xxxxxxxxxxxxxxxxxxxxxxxxx
+============
+
+Starting project with docker-compose:
+1. docker-compose build
+2. docker-compose up -d
+you can exit with: docker-compose down
+
+Changes to baseproject;
+Backend:
+    index.js
+        APPID (apikey) is now in .env file (located at: weatherapp/)
+        env.PORT || 9001  --> 9001
+        added "&units=metric" to endpoint (row20) --> all values are in celcius.
+
+Frontend:
+    index.jsx
+        (row26) the component sees all json fields
+        added temperature, feels_like and humidity values
+
+Minikube:
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+sudo touch /etc/apt/sources.list.d/kubernetes.list
+echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubectl socat
+Start minikube
+
+sudo minikube start --vm-driver=none
+Access dashboard
+
+sudo minikube dashboard
+ctrl+c when you see https://....
+
+nohup kubectl port-forward  -n kubernetes-dashboard service/kubernetes-dashboard --address 0.0.0.0 9000:80 > dashboard.log &
+DEPLOYMENT
+Time for the finale, to deploy on Minikube
+
+## BACKEND
+kubectl run weatherapp-backend --image=weatherapp_backend:latest --image-pull-policy=Never
+kubectl expose deployment weatherapp-backend --type=NodePort --port 9001
+nohup kubectl port-forward service/weatherapp-backend --address 0.0.0.0 9001:8000 > backend.log &
+
+## FRONTEND
+kubectl run weatherapp-frontend --image=weatherapp_frontend:latest --image-pull-policy=Never
+kubectl expose deployment weatherapp-frontend --type=NodePort --port 8000
+nohup kubectl port-forward service/
